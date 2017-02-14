@@ -9,7 +9,7 @@ public class Instance {
     public String classValue;
 
     public Instance(String[] values) {
-        features = new String[values.length];
+        features = new String[values.length - 1];
         for (int i = 0; i < values.length - 1; i++) {
             this.features[i] = values[i];
         }

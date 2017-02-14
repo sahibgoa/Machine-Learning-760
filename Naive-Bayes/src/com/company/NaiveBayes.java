@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class NaiveBayes {
 
     private HashMap<String, Double> probabilityOfClass;
-    private HashMap<String, Double[][]> featureToProbability;
+    private HashMap<String, double[][]> featureToProbability;
     public ArrayList<Feature> features;
     public ArrayList<String> classValues;
 
@@ -22,7 +22,7 @@ public class NaiveBayes {
         this.classValues = classValues;
         for (Feature feature: features)
             featureToProbability.put(feature.featureName,
-                    new Double[feature.allowedValues.size()][classValues.size()]);
+                    new double[feature.allowedValues.size()][classValues.size()]);
     }
 
     /**
@@ -93,18 +93,17 @@ public class NaiveBayes {
 
             // Populate feature to probability tables with feature to no. of occurrences
             for (int i = 0; i < instance.features.length; i++) {
-                Double[][] conditionalProbabilities;
+                double[][] conditionalProbabilities;
                 if (featureToProbability.containsKey(features.get(i).featureName)) {
                     conditionalProbabilities = featureToProbability.get(features.get(i).featureName);
                     conditionalProbabilities[features.get(i).allowedValues.indexOf(instance.features[i])][classValues.indexOf(instance.classValue)]++;
                     featureToProbability.put(features.get(i).featureName, conditionalProbabilities);
                 }
             }
-
         }
 
         for (Feature feature: features) {
-            Double[][] conditionalProbabilities = featureToProbability.get(feature.featureName);
+            double[][] conditionalProbabilities = featureToProbability.get(feature.featureName);
             for (int i = 0; i < conditionalProbabilities.length; i++) {
                 for (int j = 0; j < conditionalProbabilities[i].length; j++) {
                     conditionalProbabilities[i][j] /= (probabilityOfClass.get(classValues.get(j)) * instances.size());
