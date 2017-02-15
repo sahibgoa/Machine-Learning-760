@@ -8,7 +8,9 @@ import java.util.Scanner;
 
 public class bayes {
 
+    // Stores all features (i.e. feature names and allowed values)
     public static ArrayList<Feature> features;
+    // Stores all class values
     public static ArrayList<String> classValues;
 
     public static void main(String[] args) {
@@ -43,6 +45,13 @@ public class bayes {
 
     }
 
+    /**
+     * Reads the ARFF file and stores all attributes, their allowed values as well as all instances.
+     * It also differentiates between training and test set by checking if the feature vector has
+     * been initialized or not.
+     * @param filename The ARFF file to be read
+     * @return ArrayList of all instances in the file
+     */
     public static ArrayList<Instance> readFile(String filename) {
         Scanner file = null;
         try {

@@ -104,11 +104,17 @@ public class NaiveBayes {
 
         for (Feature feature: features) {
             double[][] conditionalProbabilities = featureToProbability.get(feature.featureName);
+            double sum[] = new double[conditionalProbabilities.length];
             for (int i = 0; i < conditionalProbabilities.length; i++) {
                 for (int j = 0; j < conditionalProbabilities[i].length; j++) {
                     conditionalProbabilities[i][j] /= (probabilityOfClass.get(classValues.get(j)) * instances.size());
+                    sum[i] += conditionalProbabilities[i][j];
                 }
             }
+            // Normalize all values so that sum of P(featureValues | classValue = c) = 1
+            for (int i = 0; i < conditionalProbabilities.length; i++)
+                for (int j = 0; j < conditionalProbabilities[i].length; j++)
+                    conditionalProbabilities[i][j] /= sum[i];
         }
     }
 
