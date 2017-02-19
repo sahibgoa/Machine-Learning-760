@@ -5,8 +5,8 @@ import java.util.HashMap;
 
 public class NaiveBayes {
 
-    private HashMap<String, Double> probabilityOfClass;
-    private HashMap<String, double[][]> featureToProbability;
+    HashMap<String, Double> probabilityOfClass;
+    HashMap<String, double[][]> featureToProbability;
     public ArrayList<Feature> features;
     public ArrayList<String> classValues;
 
@@ -38,7 +38,7 @@ public class NaiveBayes {
             numerator *= probabilityFeatureGivenClass(features.get(i).featureName, featureList[i], classValue);
 
         for (String classVal: classValues) {
-            double product = 1.0;
+            double product = probabilityOfClass.get(classVal);
             for (int i = 0; i < featureList.length; i++)
                 product *= probabilityFeatureGivenClass(features.get(i).featureName, featureList[i], classVal);
             denominator += product;
@@ -82,40 +82,66 @@ public class NaiveBayes {
      * @param instances The instances to train the naive bayes net on
      */
     public void train(ArrayList<Instance> instances) {
+
+        // Stores the total number of values that can be stored in the CPT
+        int totalCount = classValues.size() * features.size();
+        for (int i = 0; i < features.size(); i++)
+            totalCount *= features.get(i).allowedValues.size();
+
+        // Initialize all class probabilities to zero
+        for (int i = 0; i < bayes.classValues.size(); i++)
+            probabilityOfClass.put(classValues.get(i), 0.0);
+
+        // For each instance, initializes the probability of each class and the conditional
+        // probabilities for a feature given class
         for (Instance instance: instances) {
 
-            // Calculate the probability of each class
-            if (probabilityOfClass.containsKey(instance.classValue))
-                probabilityOfClass.put(instance.classValue,
-                        probabilityOfClass.get(instance.classValue) + 1.0/(double)instances.size());
-            else
-                probabilityOfClass.put(instance.classValue, 1.0/(double)instances.size());
+            // Add the total number of each class occurrence
+            probabilityOfClass.put(instance.classValue, probabilityOfClass.get(instance.classValue) + 1.0);
 
-            // Populate feature to probability tables with feature to no. of occurrences
+            // Populate feature to probability tables with feature to number of occurrences
             for (int i = 0; i < instance.features.length; i++) {
-                double[][] conditionalProbabilities;
-                if (featureToProbability.containsKey(features.get(i).featureName)) {
-                    conditionalProbabilities = featureToProbability.get(features.get(i).featureName);
-                    conditionalProbabilities[features.get(i).allowedValues.indexOf(instance.features[i])][classValues.indexOf(instance.classValue)]++;
-                    featureToProbability.put(features.get(i).featureName, conditionalProbabilities);
-                }
+                double[][] conditionalProbabilities =
+                        featureToProbability.get(features.get(i).featureName);
+                conditionalProbabilities[features.get(i).allowedValues.indexOf(instance.features[i])][classValues.indexOf(instance.classValue)]++;
+                featureToProbability.put(features.get(i).featureName, conditionalProbabilities);
             }
+
         }
+
+        /* Add pseudo counts to the CPTs
+        for(Feature feature: bayes.features)
+            for (int j = 0; j < bayes.classValues.size(); j++)
+                for (int k = 0; k < feature.allowedValues.size(); k++) {
+                    double[][] conditionalProbabilities;
+                    conditionalProbabilities = featureToProbability.get(feature.featureName);
+                    conditionalProbabilities[k][j]++;
+                    featureToProbability.put(feature.featureName, conditionalProbabilities);
+                }
+        */
 
         for (Feature feature: features) {
             double[][] conditionalProbabilities = featureToProbability.get(feature.featureName);
             double sum[] = new double[conditionalProbabilities.length];
             for (int i = 0; i < conditionalProbabilities.length; i++) {
                 for (int j = 0; j < conditionalProbabilities[i].length; j++) {
-                    conditionalProbabilities[i][j] /= (probabilityOfClass.get(classValues.get(j)) * instances.size());
-                    sum[i] += conditionalProbabilities[i][j];
+                    // P(X=x|Y) = [(# of X=x) + 1] / [(# of Y) + (# of X)]
+                    conditionalProbabilities[i][j] = (conditionalProbabilities[i][j] + 1) /
+                            (probabilityOfClass.get(classValues.get(j))
+                                    + conditionalProbabilities.length);
+                    //sum[i] += conditionalProbabilities[i][j];
                 }
             }
-            // Normalize all values so that sum of P(featureValues | classValue = c) = 1
+            /* Normalize all values so that sum of P(featureValues | classValue = c) = 1
             for (int i = 0; i < conditionalProbabilities.length; i++)
                 for (int j = 0; j < conditionalProbabilities[i].length; j++)
-                    conditionalProbabilities[i][j] /= sum[i];
+                    conditionalProbabilities[i][j] /= sum[i];*/
         }
+
+        int numFeaturesValues = totalCount / bayes.classValues.size();
+        for (String classValue: classValues)
+            probabilityOfClass.put(classValue, probabilityOfClass.get(classValue) / (double)instances.size());
+
     }
 
 }

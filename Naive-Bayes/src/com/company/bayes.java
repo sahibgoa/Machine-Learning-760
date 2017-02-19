@@ -25,24 +25,28 @@ public class bayes {
         ArrayList<Instance> trainingSet = readFile(args[0]);
         ArrayList<Instance> testSet = readFile(args[1]);
 
-        NaiveBayes naiveBayes = new NaiveBayes(classValues, features);
-        naiveBayes.train(trainingSet);
+        if (args[2].trim().equals("n")) {
+            NaiveBayes naiveBayes = new NaiveBayes(classValues, features);
+            naiveBayes.train(trainingSet);
 
-        // TODO Test the naive bayes net on the test set
-        for (Instance instance: testSet) {
-            double maxProbability = 0.0;
-            int classification = 0;
-            for (String classValue: classValues) {
-                double pr = naiveBayes.probabilityClassGivenFeatures(instance.features, classValue);
-                if (pr > maxProbability) {
-                    maxProbability = pr;
-                    classification = classValues.indexOf(classValue);
+            // Test the naive bayes net on the test set
+            for (Instance instance : testSet) {
+                double maxProbability = 0.0;
+                int classification = 0;
+                for (String classValue : classValues) {
+                    double pr = naiveBayes.probabilityClassGivenFeatures(instance.features, classValue);
+                    if (pr > maxProbability) {
+                        maxProbability = pr;
+                        classification = classValues.indexOf(classValue);
+                    }
                 }
+                System.out.println(classValues.get(classification) + " " + instance.classValue + " "
+                        + maxProbability);
             }
-            System.out.println(classValues.get(classification) + " " + instance.classValue + " "
-                    + maxProbability);
+        } else if (args[2].trim().equals("t")) {
+            TAN tan = new TAN(classValues, features);
+            tan.train(trainingSet);
         }
-
     }
 
     /**
@@ -63,7 +67,6 @@ public class bayes {
         boolean isTraining = features.isEmpty();
         while (file.hasNextLine()) {
             String line = file.nextLine().trim();
-            Instance instance;
 
             if (line.charAt(0) == '%')
                 continue;
