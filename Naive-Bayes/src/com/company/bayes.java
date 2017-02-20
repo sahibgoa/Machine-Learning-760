@@ -50,11 +50,12 @@ public class bayes {
             tan.train(trainingSet);
 
             for (Node node: TAN.spanningTreeEdges) {
-                System.out.print(node.node.featureName + " ");
+                System.out.print(node.node.featureName);
                 if (node.parent != null)
-                    System.out.print(node.parent.node.featureName);
+                    System.out.print(" " + node.parent.node.featureName);
                 System.out.println(" class");
             }
+            System.out.println();
 
             int correct = 0;
             // Test the naive bayes net on the test set
@@ -82,7 +83,7 @@ public class bayes {
                 System.out.println(classValues.get(classification) + " " + instance.classValue + " "
                         + maxProbability);
             }
-            System.out.println("Correct: " + correct);
+            System.out.println("\n" + correct);
         }
     }
 

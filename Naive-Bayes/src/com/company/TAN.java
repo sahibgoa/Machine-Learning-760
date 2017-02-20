@@ -121,12 +121,6 @@ public class TAN {
     public void createSpanningTree() {
 
         CPT = computeMutualInformation();
-        for (int i = 0; i < CPT.length; i++) {
-            for (int j = 0; j < CPT[i].length; j++) {
-                System.out.print(CPT[i][j] + " ");
-            }
-            System.out.println();
-        }
 
         // Create graph where each node is a feature
         ArrayList<Node> nodes = new ArrayList<>();
@@ -161,52 +155,18 @@ public class TAN {
         numerator *= naiveBayes.probabilityOfClass.get(classValue);
 
         for (String classVal: classValues) {
-            numerator = 1.0;
+            double numerator1 = 1.0;
             for (Node node: spanningTreeEdges) {
                 if (node.parent != null)
-                    numerator *= probabilityFeatureGivenClassAndFeature(node.node.featureName, featureList[features.indexOf(node.node)], node.parent.node.featureName, featureList[features.indexOf(node.parent.node)], classVal);
+                    numerator1 *= probabilityFeatureGivenClassAndFeature(node.node.featureName, featureList[features.indexOf(node.node)], node.parent.node.featureName, featureList[features.indexOf(node.parent.node)], classVal);
                 else
-                    numerator *= naiveBayes.probabilityFeatureGivenClass(node.node.featureName, featureList[features.indexOf(node.node)], classVal);
+                    numerator1 *= naiveBayes.probabilityFeatureGivenClass(node.node.featureName, featureList[features.indexOf(node.node)], classVal);
             }
-            numerator *= naiveBayes.probabilityOfClass.get(classVal);
-            denominator += numerator;
+            numerator1 *= naiveBayes.probabilityOfClass.get(classVal);
+            denominator += numerator1;
         }
 
         return numerator / denominator;
-    }
-
-    /**
-     * Calculates the probability of a feature having a particular value given the class value of the example
-     * @param featureName1 The features for which the probability is being calculated
-     * @param featureName2 The features for which the probability is being calculated
-     * @param featureValue1 The value of those features
-     * @param featureValue2 The value of those features
-     * @param classValue The class value of the example based on which the probability is being calculated
-     * @return The probability of the feature having those feature values given the class
-     */
-    public double probabilityFeaturesGivenClass(String featureName1, String featureValue1,
-                                                String featureName2, String featureValue2,
-                                                String classValue) {
-
-        if (featureName1.equals(featureName2))
-            return naiveBayes.probabilityFeatureGivenClass(featureName1, featureValue1, classValue);
-
-        double conditionalFeatureCount, classCount, allowedValues1, allowedValues2;
-        Feature feature1 = null, feature2 = null;
-
-        // Find the feature objects associated with the given feature names
-        for (Feature feature: features) {
-            if (feature.featureName.equals(featureName1))
-                feature1 = feature;
-            if (feature.featureName.equals(featureName2))
-                feature2 = feature;
-        }
-
-        conditionalFeatureCount = X1X2YTable[features.indexOf(feature1)][feature1.allowedValues.indexOf(featureValue1)][features.indexOf(feature2)][feature2.allowedValues.indexOf(featureValue2)][classValues.indexOf(classValue)];
-        classCount = naiveBayes.frequencyOfClass.get(classValue);
-        allowedValues1 = feature1.allowedValues.size();
-        allowedValues2 = feature2.allowedValues.size();
-        return (conditionalFeatureCount + 1.0) / (classCount + (allowedValues1 * allowedValues2));
     }
 
     /**
@@ -227,7 +187,7 @@ public class TAN {
         if (featureName.equals(givenFeatureName))
             return naiveBayes.probabilityFeatureGivenClass(featureName, featureValue, classValue);
 
-        double conditionalFeatureCount, classCount = 0, allowedValues1;
+        double conditionalFeatureCount, classCount = 0, allowedValues1, allowedValues2;
         Feature feature1 = null, feature2 = null;
 
         // Find the feature objects associated with the given feature names
@@ -243,9 +203,11 @@ public class TAN {
                 classCount += X1X2YTable[i][j][features.indexOf(feature2)][feature2.allowedValues.indexOf(givenFeatureValue)][classValues.indexOf(classValue)];
 
         conditionalFeatureCount = X1X2YTable[features.indexOf(feature1)][feature1.allowedValues.indexOf(featureValue)][features.indexOf(feature2)][feature2.allowedValues.indexOf(givenFeatureValue)][classValues.indexOf(classValue)];
+        classCount = naiveBayes.frequencyOfClass.get(classValue);
         allowedValues1 = feature1.allowedValues.size();
+        allowedValues2 = feature2.allowedValues.size();
 
-        return (conditionalFeatureCount + 1.0) / (classCount + allowedValues1);
+        return (conditionalFeatureCount + 1.0) / (classCount * allowedValues2 + allowedValues1);
     }
 
     /**
@@ -263,9 +225,8 @@ public class TAN {
         /* Initializes the Map to map each feature to all feature pairs its associated with */
         for (Feature feature: features) {
             ArrayList<FeaturePair> featurePairs = new ArrayList<>();
-            for (Feature feature1: features) {
+            for (Feature feature1: features)
                 featurePairs.add(new FeaturePair(feature, feature1));
-            }
             featureToFeaturePairs.put(feature, featurePairs);
         }
 
@@ -273,37 +234,17 @@ public class TAN {
         X1X2YTable = new double[features.size()][][][][];
         for (int i = 0; i < features.size(); i++) {
             X1X2YTable[i] = new double[features.get(i).allowedValues.size()][features.size()][][];
-            for (int j = 0; j < features.get(i).allowedValues.size(); j++) {
-                for (int k = 0; k < features.size(); k++) {
+            for (int j = 0; j < features.get(i).allowedValues.size(); j++)
+                for (int k = 0; k < features.size(); k++)
                     X1X2YTable[i][j][k] = new double[features.get(k).allowedValues.size()][classValues.size()];
-                }
-            }
         }
 
         /* Initialize table of 2 features occurring given class */
-        for (Instance instance: instances) {
-            for (int i = 0; i < instance.features.length; i++) {
-                for (int j = 0; j < instance.features.length; j++) {
+        for (Instance instance: instances)
+            for (int i = 0; i < instance.features.length; i++)
+                for (int j = 0; j < instance.features.length; j++)
                     X1X2YTable[i][features.get(i).allowedValues.indexOf(instance.features[i])][j][features.get(j).allowedValues.indexOf(instance.features[j])][classValues.indexOf(instance.classValue)]++;
-//                    Feature feature = features.get(i);
-//                    ArrayList<FeaturePair> featurePairs = featureToFeaturePairs.get(feature);
-//                    for (int j = 0; j < instance.features.length; j++) {
-//                        Feature feature1 = features.get(j);
-//                        if (feature == feature1)
-//                            continue;
-//                        int k;
-//                        for (k = 0; k < featurePairs.size(); k++) {
-//                            if (featurePairs.get(k).featureY == feature1)
-//                                break;
-//                        }
-//                        double[][][] probabilityXY = featurePairs.get(k).prXY;
-//                        probabilityXY[feature.allowedValues.indexOf(instance.features[features.indexOf(feature)])][feature1.allowedValues.indexOf(instance.features[features.indexOf(feature1)])][classValues.indexOf(instance.classValue)]++;
-//                        featurePairs.get(k).prXY = probabilityXY;
-//                    }
-//                    featureToFeaturePairs.put(feature, featurePairs);
-                }
-            }
-        }
+
 
 
         createSpanningTree();
