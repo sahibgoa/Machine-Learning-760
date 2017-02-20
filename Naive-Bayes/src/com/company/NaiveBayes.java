@@ -6,6 +6,7 @@ import java.util.HashMap;
 public class NaiveBayes {
 
     HashMap<String, Double> probabilityOfClass;
+    HashMap<String, Integer> frequencyOfClass;
     HashMap<String, double[][]> featureToProbability;
     public ArrayList<Feature> features;
     public ArrayList<String> classValues;
@@ -17,6 +18,7 @@ public class NaiveBayes {
      */
     public NaiveBayes(ArrayList<String> classValues, ArrayList<Feature> features) {
         this.probabilityOfClass = new HashMap<>();
+        this.frequencyOfClass = new HashMap<>();
         this.featureToProbability = new HashMap<>();
         this.features = features;
         this.classValues = classValues;
@@ -90,14 +92,14 @@ public class NaiveBayes {
 
         // Initialize all class probabilities to zero
         for (int i = 0; i < bayes.classValues.size(); i++)
-            probabilityOfClass.put(classValues.get(i), 0.0);
+            frequencyOfClass.put(classValues.get(i), 0);
 
         // For each instance, initializes the probability of each class and the conditional
         // probabilities for a feature given class
         for (Instance instance: instances) {
 
             // Add the total number of each class occurrence
-            probabilityOfClass.put(instance.classValue, probabilityOfClass.get(instance.classValue) + 1.0);
+            frequencyOfClass.put(instance.classValue, frequencyOfClass.get(instance.classValue) + 1);
 
             // Populate feature to probability tables with feature to number of occurrences
             for (int i = 0; i < instance.features.length; i++) {
@@ -127,7 +129,7 @@ public class NaiveBayes {
                 for (int j = 0; j < conditionalProbabilities[i].length; j++) {
                     // P(X=x|Y) = [(# of X=x) + 1] / [(# of Y) + (# of X)]
                     conditionalProbabilities[i][j] = (conditionalProbabilities[i][j] + 1) /
-                            (probabilityOfClass.get(classValues.get(j))
+                            (frequencyOfClass.get(classValues.get(j))
                                     + conditionalProbabilities.length);
                     //sum[i] += conditionalProbabilities[i][j];
                 }
@@ -140,7 +142,7 @@ public class NaiveBayes {
 
         int numFeaturesValues = totalCount / bayes.classValues.size();
         for (String classValue: classValues)
-            probabilityOfClass.put(classValue, probabilityOfClass.get(classValue) / (double)instances.size());
+            probabilityOfClass.put(classValue, (frequencyOfClass.get(classValue) + 1.0) / (double)(instances.size() + classValues.size()));
 
     }
 

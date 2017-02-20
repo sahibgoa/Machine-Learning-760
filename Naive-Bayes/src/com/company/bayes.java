@@ -1,5 +1,7 @@
 package com.company;
 
+import sun.plugin.com.Utils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ public class bayes {
 
     public static void main(String[] args) {
 
-        if (args.length != 2) {
+        if (args.length != 3) {
             System.out.println("Usage: java bayes <trainfile> <testfile> <n/t>");
             System.exit(1);
         }
@@ -46,6 +48,41 @@ public class bayes {
         } else if (args[2].trim().equals("t")) {
             TAN tan = new TAN(classValues, features);
             tan.train(trainingSet);
+
+            for (Node node: TAN.spanningTreeEdges) {
+                System.out.print(node.node.featureName + " ");
+                if (node.parent != null)
+                    System.out.print(node.parent.node.featureName);
+                System.out.println(" class");
+            }
+
+            int correct = 0;
+            // Test the naive bayes net on the test set
+            for (Instance instance : testSet) {
+                double maxProbability = 0.0, sum = 0.0;
+                int classification = 0;
+                double[] pr = new double[classValues.size()];
+                int i = 0;
+                for (String classValue : classValues) {
+                    pr[i] = tan.probabilityClassGivenFeatures(instance.features, classValue);
+                    if (pr[i] > maxProbability) {
+                        maxProbability = pr[i];
+                        classification = classValues.indexOf(classValue);
+                    }
+                    sum += pr[i];
+                    i++;
+                }
+                // Normalize probabilities
+                for (i = 0; i < classValues.size(); i++)
+                    pr[i] /= sum;
+                maxProbability = pr[classification];
+
+                if (classification == classValues.indexOf(instance.classValue))
+                    correct++;
+                System.out.println(classValues.get(classification) + " " + instance.classValue + " "
+                        + maxProbability);
+            }
+            System.out.println("Correct: " + correct);
         }
     }
 

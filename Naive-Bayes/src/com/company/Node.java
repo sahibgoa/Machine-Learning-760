@@ -1,6 +1,7 @@
 package com.company;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by Sahib Pandori on 2/18/2017.
@@ -8,26 +9,17 @@ import java.util.ArrayList;
 public class Node {
 
     Feature node;
-    ArrayList<Node> parents;
+    Node parent;
     ArrayList<Node> children;
     double key;
 
-    Node (Feature node) {
-        this.key = Double.MIN_VALUE;
-        this.node = node;
-        parents = new ArrayList<>();
-        children = new ArrayList<>();
-    }
+    public static Comparator<Node> comparator = (o1, o2) -> (o1.key > o2.key ? 1 : -1);
 
-    void updateKeys() {
-        double edgeWeight = 0;
-        for (Node child: children) {
-            for (MutualInformation mutualInformation: TAN.allInformation)
-                if (mutualInformation.featureX == node && mutualInformation.featureY == child.node)
-                    edgeWeight = mutualInformation.mutualInformation;
-            if (edgeWeight > child.key)
-                child.key = edgeWeight;
-        }
+    Node (Feature node) {
+        this.key = Double.MAX_VALUE;
+        this.node = node;
+        children = new ArrayList<>();
+        parent = null;
     }
 
 }
