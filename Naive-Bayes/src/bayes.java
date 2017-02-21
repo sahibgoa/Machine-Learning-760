@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class bayes {
             if (classification == classValues.indexOf(instance.classValue))
                 correct++;
             System.out.println(classValues.get(classification) + " " + instance.classValue + " "
-                    + maxProbability);
+                    + new DecimalFormat("#.############").format(maxProbability));
         }
         return correct;
     }
