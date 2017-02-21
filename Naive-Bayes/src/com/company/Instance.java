@@ -1,18 +1,13 @@
 package com.company;
 
-/**
- * Created by Sahib Pandori on 2/7/2017.
- */
-public class Instance {
+class Instance {
 
-    public String[] features;
-    public String classValue;
+    String[] features;
+    String classValue;
 
-    public Instance(String[] values) {
+    Instance(String[] values) {
         features = new String[values.length - 1];
-        for (int i = 0; i < values.length - 1; i++) {
-            this.features[i] = values[i];
-        }
+        System.arraycopy(values, 0, this.features, 0, values.length - 1);
         this.classValue = values[values.length - 1];
     }
 

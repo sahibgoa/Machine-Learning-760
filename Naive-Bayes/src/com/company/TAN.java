@@ -1,20 +1,17 @@
 package com.company;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
-public class TAN {
+class TAN {
 
-    ArrayList<Feature> features;
-    ArrayList<String> classValues;
-    ArrayList<Instance> instances;
-    NaiveBayes naiveBayes;
+    private ArrayList<Feature> features;
+    private ArrayList<String> classValues;
+    private ArrayList<Instance> instances;
+    private NaiveBayes naiveBayes;
+    private double[][] CPT;
+    private double[][][][][] X1X2YTable;
+
     static ArrayList<Node> spanningTreeEdges;
-    static HashMap<Feature, ArrayList<FeaturePair>> featureToFeaturePairs;
-    double[][] CPT;
-    double[][][][][] X1X2YTable;
 
     /**
      * Constructor for the Tree Augmented Naive Bayes
@@ -29,7 +26,7 @@ public class TAN {
     /**
      * Find the mutual information for all sets of edges and returns the table containing all values
      */
-    public double[][] computeMutualInformation() {
+    private double[][] computeMutualInformation() {
         double[][] mutualInformation = new double[features.size()][features.size()];
         for (int i = 0; i < features.size(); i++) {
             for (int j = i + 1; j < features.size(); j++) {
@@ -73,7 +70,11 @@ public class TAN {
         return mutualInformation;
     }
 
-    public void Prim(ArrayList<Node> nodes) {
+    /**
+     * Uses Prim's algorithm to find the maximum spanning tree
+     * @param nodes The list of nodes in the graph
+     */
+    private void Prim(ArrayList<Node> nodes) {
 
         spanningTreeEdges = new ArrayList<>(features.size() - 1);
         nodes.get(0).key = 0.0;
@@ -98,6 +99,7 @@ public class TAN {
                     }
                 }
             }
+            assert maxChild != null;
             maxChild.parent = maxParent;
             spanningTreeEdges.add(maxChild);
             for (int i = 0; i < CPT.length; i++)
@@ -112,13 +114,10 @@ public class TAN {
                 node.parent.children.add(node);
     }
 
-
-
-
     /**
      * Creates a spanning tree using mutual information between pairs of features
      */
-    public void createSpanningTree() {
+    private void createSpanningTree() {
 
         CPT = computeMutualInformation();
 
@@ -144,7 +143,7 @@ public class TAN {
      * @param classValue The class value for which the probability needs to be calculated
      * @return The probability of a class given features values
      */
-    public double probabilityClassGivenFeatures(String[] featureList, String classValue) {
+    double probabilityClassGivenFeatures(String[] featureList, String classValue) {
         double numerator = 1.0, denominator = 0.0;
         for (Node node: spanningTreeEdges) {
             if (node.parent != null)
@@ -179,7 +178,7 @@ public class TAN {
      * @param classValue The class value given
      * @return The probability of a feature given a class and another feature
      */
-    public double probabilityFeatureGivenClassAndFeature(String featureName,
+    double probabilityFeatureGivenClassAndFeature(String featureName,
                                                          String featureValue,
                                                          String givenFeatureName,
                                                          String givenFeatureValue,
@@ -187,7 +186,7 @@ public class TAN {
         if (featureName.equals(givenFeatureName))
             return naiveBayes.probabilityFeatureGivenClass(featureName, featureValue, classValue);
 
-        double conditionalFeatureCount, classCount = 0, allowedValues1, allowedValues2;
+        double conditionalFeatureCount, classCount = 0, sum = 0.0, allowedValues2, prob, count;
         Feature feature1 = null, feature2 = null;
 
         // Find the feature objects associated with the given feature names
@@ -197,17 +196,26 @@ public class TAN {
             if (feature.featureName.equals(givenFeatureName))
                 feature2 = feature;
         }
+        assert feature1 != null;
+        assert feature2 != null;
 
+        // Find the total count of feature1, feature2 and classValue
         for (int i = 0; i < X1X2YTable.length; i++)
-            for (int j = 0; j < X1X2YTable[i].length; j++)
-                classCount += X1X2YTable[i][j][features.indexOf(feature2)][feature2.allowedValues.indexOf(givenFeatureValue)][classValues.indexOf(classValue)];
+            for (int j = 0; j < X1X2YTable[features.indexOf(feature1)].length; j++)
+                classCount += X1X2YTable[features.indexOf(feature1)][j][features.indexOf(feature2)][feature2.allowedValues.indexOf(givenFeatureValue)][classValues.indexOf(classValue)];
 
         conditionalFeatureCount = X1X2YTable[features.indexOf(feature1)][feature1.allowedValues.indexOf(featureValue)][features.indexOf(feature2)][feature2.allowedValues.indexOf(givenFeatureValue)][classValues.indexOf(classValue)];
         classCount = naiveBayes.frequencyOfClass.get(classValue);
-        allowedValues1 = feature1.allowedValues.size();
         allowedValues2 = feature2.allowedValues.size();
 
-        return (conditionalFeatureCount + 1.0) / (classCount * allowedValues2 + allowedValues1);
+        // Calculating the sum of probabilities of all values of feature1 to normalize
+        for (int i = 0; i < feature1.allowedValues.size(); i++) {
+            count = X1X2YTable[features.indexOf(feature1)][i][features.indexOf(feature2)][feature2.allowedValues.indexOf(givenFeatureValue)][classValues.indexOf(classValue)];
+            prob = (count + 1) / (classCount + allowedValues2 * classValues.size());
+            sum += prob;
+        }
+
+        return ((conditionalFeatureCount + 1.0) / (classCount + allowedValues2 * classValues.size())) / sum;
     }
 
     /**
@@ -218,17 +226,8 @@ public class TAN {
      */
     void train(ArrayList<Instance> instances) {
         this.instances = instances;
-        featureToFeaturePairs = new HashMap<>();
         naiveBayes = new NaiveBayes(classValues, features);
         naiveBayes.train(instances);
-
-        /* Initializes the Map to map each feature to all feature pairs its associated with */
-        for (Feature feature: features) {
-            ArrayList<FeaturePair> featurePairs = new ArrayList<>();
-            for (Feature feature1: features)
-                featurePairs.add(new FeaturePair(feature, feature1));
-            featureToFeaturePairs.put(feature, featurePairs);
-        }
 
         // Table for all features and class values to store how many times each occurred
         X1X2YTable = new double[features.size()][][][][];
@@ -244,8 +243,6 @@ public class TAN {
             for (int i = 0; i < instance.features.length; i++)
                 for (int j = 0; j < instance.features.length; j++)
                     X1X2YTable[i][features.get(i).allowedValues.indexOf(instance.features[i])][j][features.get(j).allowedValues.indexOf(instance.features[j])][classValues.indexOf(instance.classValue)]++;
-
-
 
         createSpanningTree();
     }

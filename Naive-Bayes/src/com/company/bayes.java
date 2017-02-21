@@ -1,7 +1,5 @@
 package com.company;
 
-import sun.plugin.com.Utils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -11,9 +9,9 @@ import java.util.Scanner;
 public class bayes {
 
     // Stores all features (i.e. feature names and allowed values)
-    public static ArrayList<Feature> features;
+    private static ArrayList<Feature> features;
     // Stores all class values
-    public static ArrayList<String> classValues;
+    static ArrayList<String> classValues;
 
     public static void main(String[] args) {
 
@@ -48,6 +46,15 @@ public class bayes {
         } else if (args[2].trim().equals("t")) {
             TAN tan = new TAN(classValues, features);
             tan.train(trainingSet);
+
+            for (Feature feature: features)
+                for (Feature feature1: features) {
+                    for (String value : feature.allowedValues)
+                        for (String value1 : feature1.allowedValues)
+                            for (String classVal : classValues)
+                                System.out.println("Pr(" + features.indexOf(feature) + "=" + feature.allowedValues.indexOf(value) + "|" + features.indexOf(feature1) + "=" + feature1.allowedValues.indexOf(value1) + "," + "Y=" + classValues.indexOf(classVal) + ") = " + tan.probabilityFeatureGivenClassAndFeature(feature.featureName, value, feature1.featureName, value1, classVal));
+                    System.out.println();
+                }
 
             for (Node node: TAN.spanningTreeEdges) {
                 System.out.print(node.node.featureName);
@@ -94,18 +101,18 @@ public class bayes {
      * @param filename The ARFF file to be read
      * @return ArrayList of all instances in the file
      */
-    public static ArrayList<Instance> readFile(String filename) {
+    private static ArrayList<Instance> readFile(String filename) {
         Scanner file = null;
         try {
             file = new Scanner(new File(filename));
         } catch (FileNotFoundException fnfe) {
             fnfe.printStackTrace();
         }
+        assert file != null;
         ArrayList<Instance> instances = new ArrayList<>();
         boolean isTraining = features.isEmpty();
         while (file.hasNextLine()) {
             String line = file.nextLine().trim();
-
             if (line.charAt(0) == '%')
                 continue;
             else if (line.charAt(0) == '@' && isTraining) {
