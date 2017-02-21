@@ -3,7 +3,7 @@ package com.company;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-class NaiveBayes {
+class NaiveBayes extends BayesNetwork {
 
     private HashMap<String, double[][]> featureToProbability;
     private ArrayList<Feature> features;

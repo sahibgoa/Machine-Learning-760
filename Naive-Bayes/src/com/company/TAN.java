@@ -2,7 +2,7 @@ package com.company;
 
 import java.util.ArrayList;
 
-class TAN {
+class TAN extends BayesNetwork {
 
     private ArrayList<Feature> features;
     private ArrayList<String> classValues;

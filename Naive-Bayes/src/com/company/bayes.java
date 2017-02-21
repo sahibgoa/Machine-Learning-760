@@ -22,39 +22,18 @@ public class bayes {
 
         features = new ArrayList<>();
         classValues = new ArrayList<>();
+
         ArrayList<Instance> trainingSet = readFile(args[0]);
         ArrayList<Instance> testSet = readFile(args[1]);
 
+        int correct = 0;
         if (args[2].trim().equals("n")) {
             NaiveBayes naiveBayes = new NaiveBayes(classValues, features);
             naiveBayes.train(trainingSet);
-
-            // Test the naive bayes net on the test set
-            for (Instance instance : testSet) {
-                double maxProbability = 0.0;
-                int classification = 0;
-                for (String classValue : classValues) {
-                    double pr = naiveBayes.probabilityClassGivenFeatures(instance.features, classValue);
-                    if (pr > maxProbability) {
-                        maxProbability = pr;
-                        classification = classValues.indexOf(classValue);
-                    }
-                }
-                System.out.println(classValues.get(classification) + " " + instance.classValue + " "
-                        + maxProbability);
-            }
+            correct = numberOfCorrectPredictions(naiveBayes, testSet);
         } else if (args[2].trim().equals("t")) {
             TAN tan = new TAN(classValues, features);
             tan.train(trainingSet);
-
-            for (Feature feature: features)
-                for (Feature feature1: features) {
-                    for (String value : feature.allowedValues)
-                        for (String value1 : feature1.allowedValues)
-                            for (String classVal : classValues)
-                                System.out.println("Pr(" + features.indexOf(feature) + "=" + feature.allowedValues.indexOf(value) + "|" + features.indexOf(feature1) + "=" + feature1.allowedValues.indexOf(value1) + "," + "Y=" + classValues.indexOf(classVal) + ") = " + tan.probabilityFeatureGivenClassAndFeature(feature.featureName, value, feature1.featureName, value1, classVal));
-                    System.out.println();
-                }
 
             for (Node node: TAN.spanningTreeEdges) {
                 System.out.print(node.node.featureName);
@@ -62,36 +41,31 @@ public class bayes {
                     System.out.print(" " + node.parent.node.featureName);
                 System.out.println(" class");
             }
-            System.out.println();
-
-            int correct = 0;
-            // Test the naive bayes net on the test set
-            for (Instance instance : testSet) {
-                double maxProbability = 0.0, sum = 0.0;
-                int classification = 0;
-                double[] pr = new double[classValues.size()];
-                int i = 0;
-                for (String classValue : classValues) {
-                    pr[i] = tan.probabilityClassGivenFeatures(instance.features, classValue);
-                    if (pr[i] > maxProbability) {
-                        maxProbability = pr[i];
-                        classification = classValues.indexOf(classValue);
-                    }
-                    sum += pr[i];
-                    i++;
-                }
-                // Normalize probabilities
-                for (i = 0; i < classValues.size(); i++)
-                    pr[i] /= sum;
-                maxProbability = pr[classification];
-
-                if (classification == classValues.indexOf(instance.classValue))
-                    correct++;
-                System.out.println(classValues.get(classification) + " " + instance.classValue + " "
-                        + maxProbability);
-            }
-            System.out.println("\n" + correct);
+            correct += numberOfCorrectPredictions(tan, testSet);
         }
+        System.out.println("\n" + correct);
+    }
+
+    private static int numberOfCorrectPredictions(BayesNetwork bn, ArrayList<Instance> testSet) {
+        int correct = 0;
+        // Test the naive bayes net on the test set
+        for (Instance instance : testSet) {
+            double maxProbability = 0.0;
+            int classification = 0;
+            for (String classValue : classValues) {
+                double pr = bn.probabilityClassGivenFeatures(instance.features, classValue);
+                if (pr > maxProbability) {
+                    maxProbability = pr;
+                    classification = classValues.indexOf(classValue);
+                }
+            }
+
+            if (classification == classValues.indexOf(instance.classValue))
+                correct++;
+            System.out.println(classValues.get(classification) + " " + instance.classValue + " "
+                    + maxProbability);
+        }
+        return correct;
     }
 
     /**
