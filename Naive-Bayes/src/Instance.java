@@ -1,6 +1,4 @@
-package com.company;
-
-class Instance {
+public class Instance {
 
     String[] features;
     String classValue;

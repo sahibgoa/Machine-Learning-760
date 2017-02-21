@@ -1,9 +1,7 @@
-package com.company;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 
-class Node {
+public class Node {
 
     Feature node;
     Node parent;
