@@ -1,8 +1,6 @@
-package com.company;
-
 import java.util.ArrayList;
 
-class Feature {
+public class Feature {
 
     String featureName;
     ArrayList<String> allowedValues;

@@ -1,8 +1,6 @@
-package com.company;
-
 import java.util.ArrayList;
 
-abstract class BayesNetwork {
+public abstract class BayesNetwork {
 
     abstract double probabilityClassGivenFeatures(String[] featureList, String classValue);
 

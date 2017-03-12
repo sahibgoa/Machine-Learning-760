@@ -1,5 +1,4 @@
-package com.company;
-
+import java.text.DecimalFormat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -30,17 +29,20 @@ public class bayes {
         if (args[2].trim().equals("n")) {
             NaiveBayes naiveBayes = new NaiveBayes(classValues, features);
             naiveBayes.train(trainingSet);
+            for (Feature feature: features)
+                System.out.println(feature.featureName + " class");
+            System.out.println();
             correct = numberOfCorrectPredictions(naiveBayes, testSet);
         } else if (args[2].trim().equals("t")) {
             TAN tan = new TAN(classValues, features);
             tan.train(trainingSet);
-
             for (Node node: TAN.spanningTreeEdges) {
                 System.out.print(node.node.featureName);
                 if (node.parent != null)
                     System.out.print(" " + node.parent.node.featureName);
                 System.out.println(" class");
             }
+            System.out.println();
             correct += numberOfCorrectPredictions(tan, testSet);
         }
         System.out.println("\n" + correct);
@@ -63,7 +65,7 @@ public class bayes {
             if (classification == classValues.indexOf(instance.classValue))
                 correct++;
             System.out.println(classValues.get(classification) + " " + instance.classValue + " "
-                    + maxProbability);
+                    + new DecimalFormat("#.############").format(maxProbability));
         }
         return correct;
     }
