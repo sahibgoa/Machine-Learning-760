@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="bayes">
+    <output-path>$PROJECT_DIR$/out/artifacts/bayes</output-path>
+    <root id="archive" name="Naive-Bayes.jar">
+      <element id="module-output" name="Naive-Bayes" />
+    </root>
+  </artifact>
+</component>
