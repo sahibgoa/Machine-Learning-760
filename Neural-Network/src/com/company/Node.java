@@ -1,3 +1,5 @@
+package com.company;
+
 import java.util.*;
 
 /**
@@ -5,10 +7,9 @@ import java.util.*;
  * There are 5 types of nodes. Check Config.java for details
  *
  * @author Sahib Singh Pandori
- * @author Aman Lunia
  */
 
-public class Node {
+class Node {
 
 	private int type = 0;
 	/* Array List that will contain the parents (including bias node) with weights if applicable */
@@ -21,7 +22,7 @@ public class Node {
      * Create a node of a given type
      * @param type the type of the node
      */
-	public Node(int type) {
+	Node(int type) {
 		if (type > 4 || type < 0) {
 			System.out.println("Incorrect value for node type");
 			System.exit(1);

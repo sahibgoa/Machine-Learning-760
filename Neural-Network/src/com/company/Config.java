@@ -1,22 +1,29 @@
+package com.company;
+
 /**
  * This class contains the configuration of the neural network
  *
  * @author Sahib Singh Pandori
- * @author Aman Lunia
  */
 
 class Config {
 
     /* The number of hidden nodes in the hidden layer */
-    static int NUM_HIDDEN_NODES = 2;
+    static int NUM_HIDDEN_NODES = 60;
     /* The learning rate of the network */
-    static double learningRate = 0.01;
+    static double learningRate = 0.1;
+    /* The number of folds for cross-validation */
+    static int NUM_FOLDS = 10;
+    /* The maximum number of epochs */
+    static int MAX_EPOCHS = 25;
 
+    /* Whether to use early stopping or not */
+    static boolean useEarlyStopping = false;
     /* The maximum number of epochs to check after accuracy begins decreasing (for early stopping */
     static int MAX_EPOCHS_SINCE_LOWER_ACCURACY = 100;
 
     /* Whether to use the momentum term or not */
-    static boolean useMomentumTerm = true;
+    static boolean useMomentumTerm = false;
     /* The beta value for the momentum term */
     static double beta = 0.9;
 

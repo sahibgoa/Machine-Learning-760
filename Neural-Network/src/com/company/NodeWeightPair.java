@@ -1,12 +1,13 @@
+package com.company;
+
 /**
  * This class makes the data structure to store the relation between a node and an edge in a
  * neural network
  *
  * @author Sahib Singh Pandori
- * @author Aman Lunia
  */
 
-public class NodeWeightPair {
+class NodeWeightPair {
 
     /* The parent node */
 	Node node;
@@ -18,7 +19,7 @@ public class NodeWeightPair {
      * @param node The node in the pair
      * @param weight The weight of the edge
      */
-	public NodeWeightPair(Node node, double weight) {
+	NodeWeightPair(Node node, double weight) {
 		this.node = node;
 		this.weight = weight;
 	}

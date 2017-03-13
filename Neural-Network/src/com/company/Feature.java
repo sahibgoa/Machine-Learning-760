@@ -1,6 +1,12 @@
+package com.company;
+
 import java.util.ArrayList;
 
-public class Feature {
+/**
+ * This class contains the name of the features and all allowed values (if feature is discrete)
+ */
+
+class Feature {
 
     String featureName;
     ArrayList<String> allowedValues;
