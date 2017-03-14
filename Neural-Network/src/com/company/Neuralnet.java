@@ -26,10 +26,15 @@ public class Neuralnet {
     public static void main(String[] args) {
 
         // Checking for correct number of arguments
-        if (args.length != 1) {
-            System.out.println("usage: java Neuralnet <dataset> ");
+        if (args.length != 4) {
+            System.out.println("Usage: java neuralnet <trainfile> <num_folds> <learning_rate> <num_epochs>");
             System.exit(-1);
         }
+
+        // Setting the configuration parameters
+        Config.NUM_FOLDS = Integer.parseInt(args[1]);
+        Config.learningRate = Integer.parseInt(args[2]);
+        Config.MAX_EPOCHS = Integer.parseInt(args[3]);
 
         features = new ArrayList<>();
         classValues = new ArrayList<>();
