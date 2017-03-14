@@ -1,5 +1,3 @@
-package com.company;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -33,7 +31,7 @@ public class Neuralnet {
 
         // Setting the configuration parameters
         Config.NUM_FOLDS = Integer.parseInt(args[1]);
-        Config.learningRate = Integer.parseInt(args[2]);
+        Config.learningRate = Double.parseDouble(args[2]);
         Config.MAX_EPOCHS = Integer.parseInt(args[3]);
 
         features = new ArrayList<>();

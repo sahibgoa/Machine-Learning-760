@@ -1,5 +1,3 @@
-package com.company;
-
 /**
  * This class contains the configuration of the neural network
  *

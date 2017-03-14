@@ -1,5 +1,3 @@
-package com.company;
-
 /**
  * This class makes the data structure to store the relation between a node and an edge in a
  * neural network
