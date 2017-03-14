@@ -15,7 +15,7 @@ class Config {
     /* The number of folds for cross-validation */
     static int NUM_FOLDS = 10;
     /* The maximum number of epochs */
-    static int MAX_EPOCHS = 25;
+    static int MAX_EPOCHS = 50;
 
     /* Whether to use early stopping or not */
     static boolean useEarlyStopping = false;
@@ -23,12 +23,12 @@ class Config {
     static int MAX_EPOCHS_SINCE_LOWER_ACCURACY = 100;
 
     /* Whether to use the momentum term or not */
-    static boolean useMomentumTerm = false;
+    static boolean useMomentumTerm = true;
     /* The beta value for the momentum term */
     static double beta = 0.9;
 
     /* Whether to use dropout or not */
-    static boolean useDropout = false;
+    static boolean useDropout = true;
     /* The input masking probability threshold for dropout */
     static double INPUT_MASKING_PROB = 0.8;
     /* The hidden masking probability threshold for dropout */

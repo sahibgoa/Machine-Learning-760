@@ -98,8 +98,9 @@ public class Neuralnet {
         }
 
         testSet = trainingSet;
+        Collections.shuffle(testSet);
 
-        int correct = 0, classification = 0;
+        int correct = 0, classification = 0, in = 0;
         double[] output;
         for (Instance testInstance : testSet) {
             // Getting output from network
@@ -121,7 +122,8 @@ public class Neuralnet {
             }
 
             // Output format
-            System.out.println(foldIndex + " "
+            if (classValues.get(classification).equals("Rock"))
+                System.out.println(++in + " " + foldIndex + " "
                     + classValues.get(classification) + " "
                     + classValues.get(testInstance.getClassIndex()) + " "
                     + (output[classification] / sum));
@@ -192,11 +194,11 @@ public class Neuralnet {
 
         for (int i = 0; i < hiddenWeights.length; i++)
             for (int j = 0; j < hiddenWeights[i].length; j++)
-                hiddenWeights[i][j] = r.nextGaussian();
+                hiddenWeights[i][j] = r.nextGaussian() * 0.01;
 
         for (int i = 0; i < outputWeights.length; i++)
             for (int j = 0; j < outputWeights[i].length; j++)
-                outputWeights[i][j] = r.nextGaussian();
+                outputWeights[i][j] = r.nextGaussian() * 0.01;
 
 
     }
