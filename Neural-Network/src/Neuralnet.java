@@ -125,8 +125,8 @@ public class Neuralnet {
             }
 
             // Output format
-            if (classValues.get(classification).equals("Rock"))
-                System.out.println(++in + " " + foldIndex + " "
+            // if (classValues.get(classification).equals("Rock"))
+                System.out.println(foldIndex + " "
                     + classValues.get(classification) + " "
                     + classValues.get(testInstance.getClassIndex()) + " "
                     + (output[classification] / sum));
